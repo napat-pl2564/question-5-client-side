@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Calculator</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <h1>Calculator</h1>
+    <script>
+      const load = () => {
+        if (document.getElementById("cloud").checked) {
+          fetch("http://localhost:3000/calculator/load")
+            .then((response) => response.json())
+            .then((response) => {
+              if (response.status === "success") {
+                let data = response.data;
+                console.log(data);
+                document.getElementById("a").value = data.A;
+                document.getElementById("b").value = data.B;
+                document.getElementById("operator").value = data.operator;
+                document.getElementById("result").value = data.result;
+                highlight(data.operator);
+                alert("Load lastest state on cloud is successfull.");
+              } else {
+                alert("Internal server error");
+              }
+            });
+        } else {
+          document.getElementById("myfile").click();
+        }
+      };
+      const fileChanged = () => {
+        var file = document.getElementById("myfile").files[0];
+        var reader = new FileReader();
+
+        reader.onload = function () {
+          let data = JSON.parse(reader.result);
+          document.getElementById("a").value = data.A;
+          document.getElementById("b").value = data.B;
+          document.getElementById("operator").value = data.operator;
+          document.getElementById("result").value = data.result;
+          highlight(data.operator);
+          alert("loaded.");
+        };
+        reader.readAsText(file, "UTF-8");
+      };
+      const save = () => {
+        let data = {
+          A: parseFloat(document.getElementById("a").value),
+          B: parseFloat(document.getElementById("b").value),
+          operator: document.getElementById("operator").value,
+          result: parseFloat(document.getElementById("result").value),
+        };
+
+        if (document.getElementById("cloud").checked) {
+          fetch("http://localhost:3000/calculator/save", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((response) => {
+              if (response.status === "success") {
+                alert("Saved lastest state to cloud is successfull.");
+              } else {
+                alert("Internal server error");
+              }
+            });
+        } else {
+          var blob = new Blob([JSON.stringify(data)], {
+            type: "application/json",
+          });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.download = "result-" + new Date().getTime() + ".json";
+          a.href = url;
+          a.click();
+        }
+      };
+      const highlight = (operator) => {
+        const opertors = ["plus", "minus", "multiply", "divide", "power"];
+        opertors.forEach((element) => {
+          document.getElementById(element).disabled =
+            element === operator ? true : false;
+        });
+        document.getElementById("operator").value = operator;
+      };
+      const calculate = (operator) => {
+        let a = parseFloat(document.getElementById("a").value);
+        let b = parseFloat(document.getElementById("b").value);
+        if (operator === "plus") {
+          document.getElementById("result").value = parseFloat(a + b);
+        }
+        if (operator === "minus") {
+          document.getElementById("result").value = parseFloat(a - b);
+        }
+        if (operator === "multiply") {
+          document.getElementById("result").value = parseFloat(a * b);
+        }
+        if (operator === "divide") {
+          document.getElementById("result").value = parseFloat(a / b);
+        }
+        if (operator === "power") {
+          document.getElementById("result").value = parseFloat(a ** b);
+        }
+        highlight(operator);
+      };
+    </script>
+    <div>
+      <label>A : <input id="a" type="number" /></label>
+    </div>
+    <div>
+      <label>B : <input id="b" type="number" /></label>
+    </div>
+
+    <div>
+      <input class="hide" id="operator" type="text" />
+      <button id="plus" onclick="calculate(id)">+</button>
+      <button id="minus" onclick="calculate(id)">-</button>
+      <button id="multiply" onclick="calculate(id)">X</button>
+      <button id="divide" onclick="calculate(id)">/</button>
+      <button id="power" onclick="calculate(id)">POW</button>
+    </div>
+    <div>
+      <label>Result : <input id="result" type="number" disabled /></label>
+    </div>
+    <div>
+      <input type="checkbox" id="cloud" name="cloud" />
+      <label for="cloud">Cloud Drive</label><br />
+    </div>
+    <div>
+      <input
+        class="hide"
+        onchange="fileChanged()"
+        type="file"
+        id="myfile"
+        accept="application/JSON"
+      />
+      <button onclick="load()">Load</button>
+      <button onclick="save()">Save</button>
+    </div>
+  </body>
+</html>
