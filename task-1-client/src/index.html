@@ -31,7 +31,7 @@
           A: parseFloat(document.getElementById("a").value),
           B: parseFloat(document.getElementById("b").value),
           operator: document.getElementById("operator").value,
-          result: parseFloat(document.getElementById("result").value),
+          result: document.getElementById("result").value,
         };
         var blob = new Blob([JSON.stringify(data)], {
           type: "application/json",

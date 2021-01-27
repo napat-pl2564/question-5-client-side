@@ -53,7 +53,7 @@
           A: parseFloat(document.getElementById("a").value),
           B: parseFloat(document.getElementById("b").value),
           operator: document.getElementById("operator").value,
-          result: parseFloat(document.getElementById("result").value),
+          result: document.getElementById("result").value,
         };
 
         if (document.getElementById("cloud").checked) {
@@ -107,7 +107,11 @@
           document.getElementById("result").value = parseFloat(a * b);
         }
         if (operator === "divide") {
-          document.getElementById("result").value = parseFloat(a / b);
+          if (b !== 0) {
+            document.getElementById("result").value = parseFloat(a / b);
+          } else {
+            document.getElementById("result").value = undefined;
+          }
         }
         if (operator === "power") {
           document.getElementById("result").value = parseFloat(a ** b);
@@ -131,7 +135,7 @@
       <button id="power" onclick="calculate(id)">POW</button>
     </div>
     <div>
-      <label>Result : <input id="result" type="number" disabled /></label>
+      <label>Result : <input id="result" type="text" disabled /></label>
     </div>
     <div>
       <input type="checkbox" id="cloud" name="cloud" />
